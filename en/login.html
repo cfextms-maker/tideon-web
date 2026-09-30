@@ -1,0 +1,87 @@
+<!-- @dsCard group="Website" viewport="1440x900" name="Giriş ekranı" subtitle="Marketing site — corporate sign-in" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex, follow">
+<title>Tideon — Sign in</title>
+<link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon-32.png">
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="../site.css">
+<style>
+.lg{min-height:100vh;display:grid;grid-template-columns:1.05fr .95fr;background:var(--surface-deep)}
+.lg-aside{position:relative;overflow:hidden;padding:48px;display:flex;flex-direction:column;justify-content:space-between;color:#fff}
+.lg-aside img{height:24px;width:86px;align-self:flex-start;display:block;position:relative;z-index:1}
+.lg-claim{position:relative;z-index:1;max-width:22ch;font-size:var(--fs-h1);line-height:var(--lh-tight);letter-spacing:var(--ls-display);font-weight:var(--fw-bold)}
+.lg-meta{position:relative;z-index:1;font-size:var(--fs-xs);color:var(--text-invert-muted)}
+.lg-panel{background:#fff;display:flex;align-items:center;justify-content:center;padding:40px 48px;overflow:auto}
+.lg-form{width:100%;max-width:376px;display:flex;flex-direction:column;gap:var(--sp-4)}
+.lg-form h1{font-size:var(--fs-h2);font-weight:var(--fw-bold);color:var(--n-900);letter-spacing:var(--ls-display)}
+.lg-form p{font-size:var(--fs-sm);color:var(--text-muted)}
+.lg-field{display:flex;flex-direction:column;gap:6px}
+.lg-field label{font-size:var(--fs-xs);font-weight:var(--fw-semibold);color:var(--n-800)}
+.lg-field input,.lg-field select{height:40px;padding:0 12px;font-family:inherit;font-size:var(--fs-sm);color:var(--n-900);background:#fff;border:1px solid var(--g-400);border-radius:var(--r-sm)}
+.lg-field input:focus,.lg-field select:focus{outline:none;border-color:var(--accent-600);box-shadow:0 0 0 3px rgba(15,111,198,.14)}
+.lg-row{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:var(--fs-xs);color:var(--text-muted)}
+.lg-row label{display:flex;align-items:center;gap:7px;color:var(--n-800)}
+.lg-row a{color:var(--accent-600);text-decoration:none;font-weight:var(--fw-semibold)}
+.lg-row a:hover{text-decoration:underline}
+.lg-sep{display:flex;align-items:center;gap:10px;font-size:var(--fs-micro);color:var(--g-500);letter-spacing:.08em;text-transform:uppercase}
+.lg-sep:before,.lg-sep:after{content:"";flex:1;height:1px;background:var(--border-hairline)}
+.lg-sso{height:40px;display:inline-flex;align-items:center;justify-content:center;gap:8px;background:#fff;border:1px solid var(--g-400);border-radius:var(--r-sm);font-family:inherit;font-size:var(--fs-sm);font-weight:var(--fw-semibold);color:var(--n-900);cursor:pointer}
+.lg-sso:hover{background:var(--g-100)}
+.lg-foot{font-size:var(--fs-micro);color:var(--g-500);line-height:1.5}
+.lg-back{position:absolute;top:24px;right:32px;font-size:var(--fs-xs);font-weight:var(--fw-semibold);color:var(--g-600);text-decoration:none}
+.lg-back:hover{color:var(--n-900)}
+@media(max-width:900px){.lg{grid-template-columns:1fr}.lg-aside{display:none}}
+</style>
+<link rel="canonical" href="https://tideon.com.tr/en/login.html">
+<link rel="alternate" hreflang="x-default" href="https://tideon.com.tr/login.html">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Tideon">
+<meta property="og:title" content="Tideon — Sign in">
+<meta property="og:description" content="">
+<meta property="og:url" content="https://tideon.com.tr/en/login.html">
+<meta property="og:image" content="https://tideon.com.tr/assets/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Tideon — Sign in">
+<meta name="twitter:description" content="">
+<meta name="twitter:image" content="https://tideon.com.tr/assets/og-image.png">
+</head>
+<body>
+<template id="__bundler_thumbnail"><svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><rect width="120" height="120" fill="#FFFFFF"/></svg></template>
+<div class="lg">
+<div class="lg-aside">
+<div class="facets" aria-hidden="true"><i class="f1x"></i><i class="f2x"></i><i class="f3x"></i><i class="f4x"></i></div>
+<img id="lg-logo" src="../assets/og-image.png" alt="Tideon">
+<div class="lg-claim">Cash, risk and payments on one platform</div>
+<div class="lg-meta">Corporate access · multi-entity structure · role-based permissions</div>
+</div>
+<div class="lg-panel">
+<a class="lg-back" href="index.html">← Back to site</a>
+<form class="lg-form" onsubmit="event.preventDefault()">
+<div class="stack-2">
+<h1>Sign in</h1>
+<p>Sign in with your corporate account.</p>
+</div>
+<div class="lg-field"><label for="lg-org">Organisation code</label><input id="lg-org" type="text" placeholder="holding-inc" autocomplete="organization"></div>
+<div class="lg-field"><label for="lg-mail">Work email</label><input id="lg-mail" type="email" placeholder="name.surname@company.com" autocomplete="username"></div>
+<div class="lg-field"><label for="lg-pass">Password</label><input id="lg-pass" type="password" placeholder="••••••••" autocomplete="current-password"></div>
+<div class="lg-row">
+<label><input type="checkbox"> Remember this device</label>
+<a href="#password">Forgot password</a>
+</div>
+<button class="btn btn-primary" type="submit">Sign in</button>
+<div class="lg-sep">or</div>
+<button class="lg-sso" type="button">Sign in with corporate SSO (SAML)</button>
+<p class="lg-foot">A one-time verification code is required at sign-in. Permissions are defined by your organisation’s administrator; the user who prepares a request cannot approve it.</p>
+</form>
+</div>
+</div>
+<script src="../logo-data.js"></script>
+<script src="../assets-data.js"></script>
+<script>if(window.TIDEON_LOGOS)document.getElementById("lg-logo").src=window.TIDEON_LOGOS.LOGO_LIGHT;</script>
+</body>
+</html>

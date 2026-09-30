@@ -1,0 +1,30 @@
+:root{
+/* brand base — sampled from the wordmark */
+--brand-navy:#003366;
+--brand-navy-deep:#001C39;
+--brand-blue:#0960AE;
+
+/* navy scale */
+--n-900:#001C39;--n-850:#00274E;--n-800:#003366;--n-700:#0A4478;--n-600:#14568F;
+
+/* site accent — one step livelier than the platform accent, deliberately not red/orange */
+--accent-700:#0960AE;--accent-600:#0F6FC6;--accent-500:#2A87DC;--accent-200:#B9D7F2;--accent-025:#EFF5FB;--accent-050:#EAF2FB;
+
+/* neutrals */
+--g-000:#FFFFFF;--g-025:#FAFBFD;--g-050:#F4F7FA;--g-100:#EBEFF5;--g-200:#DCE3EC;
+--g-250:#EAEFF4;--g-300:#C4CEDB;--g-400:#9AA7B8;--g-500:#6B7A8D;--g-600:#4C5A6B;--g-700:#33414F;
+
+/* semantic — reserved so real product screenshots read correctly inside the site */
+--ok-600:#157F5B;--ok-050:#E8F5EF;
+--warn-600:#B8730E;--warn-050:#FBF2E3;
+--risk-600:#B4291F;--risk-050:#FBECEA;
+--unknown-500:#6B7A8D;--unknown-050:#EEF1F5;
+
+/* semantic aliases */
+--text-strong:var(--n-900);--text-body:var(--g-700);--text-muted:var(--g-500);--text-invert:#FFFFFF;
+--text-invert-muted:rgba(255,255,255,.72);--text-link:var(--accent-700);
+--surface-page:var(--g-000);--surface-sunken:var(--g-050);--surface-card:var(--g-000);
+--surface-deep:var(--n-850);--surface-deep-2:var(--n-900);--surface-accent-soft:var(--accent-050);
+--border-hairline:var(--g-200);--border-strong:var(--g-300);--border-invert:rgba(255,255,255,.16);
+--focus-ring:var(--accent-500);
+}
