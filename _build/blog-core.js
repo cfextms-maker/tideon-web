@@ -155,6 +155,7 @@
       '<meta property="article:published_time" content="' + p.tarih + '">\n<meta property="article:section" content="' + esc(p.kategori) + '">\n' +
       '<meta name="twitter:card" content="summary_large_image">\n<meta name="twitter:title" content="' + esc(title) + '">\n<meta name="twitter:description" content="' + esc(p.aciklama) + '">\n<meta name="twitter:image" content="' + image + '">\n' +
       ld.map((o) => '<script type="application/ld+json">' + JSON.stringify(o).replace(/</g, '\\u003c') + '</script>').join('\n') + '\n' +
+      '<link rel="preload" href="' + up + 'assets/fonts/IBMPlexSans-400-latin.woff2" as="font" type="font/woff2" crossorigin>\n<link rel="preload" href="' + up + 'assets/fonts/IBMPlexSans-400-latin-ext.woff2" as="font" type="font/woff2" crossorigin>\n<link rel="preload" href="' + up + 'assets/fonts/IBMPlexSans-600-latin.woff2" as="font" type="font/woff2" crossorigin>\n<link rel="preload" href="' + up + 'assets/fonts/IBMPlexSans-600-latin-ext.woff2" as="font" type="font/woff2" crossorigin>\n<link rel="preload" href="' + up + 'assets/fonts/IBMPlexSerif-400-latin.woff2" as="font" type="font/woff2" crossorigin>\n<link rel="preload" href="' + up + 'assets/fonts/IBMPlexSerif-400-latin-ext.woff2" as="font" type="font/woff2" crossorigin>\n' +
       '<link rel="icon" type="image/png" sizes="32x32" href="' + up + 'favicon-32.png">\n<link rel="apple-touch-icon" href="' + up + 'apple-touch-icon.png">\n<link rel="stylesheet" href="' + up + 'styles.css">\n<link rel="stylesheet" href="' + up + 'site.css">\n';
   }
 
