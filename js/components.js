@@ -86,12 +86,13 @@ function LANG_URL(hedef) {
 }
 function SiteHeader({
   lang,
-  setLang
+  setLang,
+  alwaysSolid
 }) {
   const [open, setOpen] = useState(null);
-  const [solid, setSolid] = useState(false);
+  const [solid, setSolid] = useState(!!alwaysSolid);
   React.useEffect(() => {
-    const onScroll = () => setSolid(window.scrollY > 48);
+    const onScroll = () => setSolid(!!alwaysSolid || window.scrollY > 48);
     onScroll();
     window.addEventListener('scroll', onScroll, {
       passive: true

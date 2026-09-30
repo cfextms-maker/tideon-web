@@ -7,6 +7,7 @@
   /* tema → blog kapak çizimi (components.js BlogArt varyantları) */
   const TEMA = { tahmin: 'forecast', nakit: 'forecast', cek: 'cheque', 'cek-senet': 'cheque', risk: 'covenant', covenant: 'covenant' };
 
+  let INLINE_NETLIFY = false;
   const esc = (s) => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
   function slugify(s) {
@@ -36,7 +37,7 @@
     const codes = [];
     s = s.replace(/`([^`]+)`/g, (_, c) => { codes.push('<code>' + esc(c) + '</code>'); return '\u0000' + (codes.length - 1) + '\u0000'; });
     s = esc(s);
-    s = s.replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, (_, a, u) => '<img src="' + u + '" alt="' + a + '" loading="lazy">');
+    s = s.replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, (_, a, u) => '<img src="' + (INLINE_NETLIFY && u.charAt(0) === '/' ? '/.netlify/images?url=' + encodeURIComponent(u) + '&amp;w=1440' : u) + '" alt="' + a + '" loading="lazy" decoding="async">');
     s = s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (_, t, u) => {
       const ext = /^https?:\/\//.test(u) && u.indexOf(SITE) !== 0;
       return '<a href="' + u + '"' + (ext ? ' target="_blank" rel="noopener"' : '') + '>' + t + '</a>';
@@ -79,7 +80,8 @@
       }
       const p = []; while (i < lines.length && lines[i].trim() && !isBlockStart(lines[i])) p.push(lines[i++].trim());
       const one = p.join(' ');
-      out.push(/^!\[[^\]]*\]\([^)]+\)$/.test(one) ? '<figure>' + inline(one) + '</figure>' : '<p>' + inline(one) + '</p>');
+      const fig = one.match(/^!\[([^\]]*)\]\([^)]+\)$/);
+      out.push(fig ? '<figure>' + inline(one) + (fig[1].trim() ? '<figcaption>' + esc(fig[1]) + '</figcaption>' : '') + '</figure>' : '<p>' + inline(one) + '</p>');
     }
     return out.join('\n');
   }
@@ -103,7 +105,7 @@
       kapak: meta.kapak || '', kapakAlt: meta.kapak_aciklama || meta.baslik,
       tema: TEMA[slugify(meta.tema || meta.kategori).split('-')[0]] || TEMA[slugify(meta.tema || '')] || 'forecast',
       oneCikan: meta.one_cikan === true, taslak: meta.taslak === true,
-      yazar: meta.yazar || 'Tideon',
+      yazar: meta.yazar || 'Tideon', unvan: meta.unvan || '',
       html: markdown(body),
     };
   }
@@ -121,7 +123,7 @@
 
   function postData(p, posts, netlify) {
     const others = posts.filter((x) => x !== p).slice(0, 3).map((x) => ({ file: x.file, baslik: x.baslik, kategori: x.kategori, tarihYazi: x.tarihYazi, sure: x.sure, ozet: x.ozet, tema: x.tema, kapak: img(x.kapak, 720, netlify), kapakAlt: x.kapakAlt }));
-    return { post: { file: p.file, baslik: p.baslik, kategori: p.kategori, tarihYazi: p.tarihYazi, sure: p.sure, ozet: p.ozet, tema: p.tema, kapak: img(p.kapak, 1440, netlify), kapakAlt: p.kapakAlt, html: p.html }, others };
+    return { post: { file: p.file, baslik: p.baslik, kategori: p.kategori, tarihYazi: p.tarihYazi, sure: p.sure, ozet: p.ozet, tema: p.tema, kapak: img(p.kapak, 960, netlify), kapakAlt: p.kapakAlt, yazar: p.yazar, unvan: p.unvan, html: p.html }, others };
   }
 
   function postHead(p) {
@@ -164,6 +166,7 @@
 
   /* opts: { posts, template (blog.html metni), sitemapXml, render(file, pageJs, data) → html, write(file, text), netlify, today } */
   function build(o) {
+    INLINE_NETLIFY = !!o.netlify;
     const { pre, post } = shell(o.template);
     const listing = listData(o.posts, o.netlify);
     o.write('blog.html', pre + '<div id="root">' + o.render('blog.html', 'js/page-blog.js', listing) + '</div>\n' + dataTag(listing) + post.replace(/^\n/, ''));
