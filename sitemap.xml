@@ -75,7 +75,16 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://tideon.com.tr/en/iletisim.html"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://tideon.com.tr/iletisim.html"/>
   </url>
-  <url><loc>https://tideon.com.tr/blog.html</loc><lastmod>2026-08-12</lastmod><priority>0.6</priority></url>
+  <url><loc>https://tideon.com.tr/blog.html</loc><lastmod>2026-08-12</lastmod><priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://tideon.com.tr/blog.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tideon.com.tr/en/blog.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://tideon.com.tr/blog.html"/>
+  </url>
+  <url><loc>https://tideon.com.tr/en/blog.html</loc><lastmod>2026-09-30</lastmod><priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://tideon.com.tr/blog.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tideon.com.tr/en/blog.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://tideon.com.tr/blog.html"/>
+  </url>
   <url><loc>https://tideon.com.tr/partner-olun.html</loc><lastmod>2026-09-29</lastmod><priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="tr" href="https://tideon.com.tr/partner-olun.html"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://tideon.com.tr/en/partner-olun.html"/>

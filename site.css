@@ -1320,3 +1320,19 @@ form button[type="submit"].btn-sm,form button[type="submit"]{min-height:44px}
 .prose figcaption{margin-top:10px;font-size:14px;line-height:1.5;color:var(--text-muted,#5B6B7E);text-align:center}
 .prose li::marker{color:var(--accent-600)}
 @media(max-width:860px){.post-head{padding:24px 0 32px}.post-head-grid{grid-template-columns:1fr;gap:28px}.post-head-img{order:-1;aspect-ratio:16/9}.prose{font-size:18px}.prose>p:first-child{font-size:19px}.post-lead{font-size:17px}}
+
+/* Blog liste v2: kategoriler + son yazılar */
+.blog-top{padding:88px 0 28px}
+.blog-top .blog-top-row{position:relative;z-index:1}
+.blog-top-row{display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
+.blog-h1{margin:0;font-size:clamp(30px,3.4vw,40px);line-height:1.1;font-weight:600;letter-spacing:-.015em;color:#fff}
+.blog-cats{display:flex;flex-wrap:wrap;gap:8px;flex:1 1 auto;justify-content:flex-end;min-width:0}
+.blog-cats a{white-space:nowrap;flex:none;display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.06);color:#fff;font-size:14px;font-weight:600;text-decoration:none;transition:background .2s,border-color .2s}
+.blog-cats a:hover{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.4);color:#fff}
+.blog-cats a span{font-size:12px;font-weight:600;color:#fff;background:rgba(255,255,255,.16);border-radius:999px;padding:1px 7px}
+.blog-cat-sec{scroll-margin-top:80px}
+.blog-cat-head{display:flex;align-items:baseline;gap:14px;border-bottom:1px solid var(--border-hairline);padding-bottom:14px}
+.blog-cat-head span{font-size:14px;color:var(--text-muted,#5B6B7E)}
+.blog-latest{border-top:1px solid var(--border-hairline)}
+.blog-empty{font-size:17px;color:var(--text-muted,#5B6B7E);text-align:center;padding:48px 0}
+@media(max-width:860px){.blog-top{padding:76px 0 20px}.blog-cats{justify-content:flex-start;flex-basis:100%;flex-wrap:nowrap;overflow-x:auto;margin:0 -20px;padding:0 20px 4px;scrollbar-width:none}.blog-cats a{flex:none}}

@@ -70,7 +70,7 @@ Object.assign(window, {
 });
 /* İngilizceye çevrilmiş sayfalar. EN sayfasındayken listede olmayan bir hedef
    Türkçesine düşer (../dosya) — /en/ altında 404 olmaz. Sayfa çevrildikçe listeye eklenir. */
-const EN_PAGES = ['index.html', 'hazine-nakit-yonetimi.html', 'fiyatlandirma.html', 'odemeler.html', 'risk-uyum.html', 'cek-senet.html', 'finansman.html', 'teminat-akreditif.html', 'cok-sirketli-gruplar.html', 'mutabakat.html', 'hakkimizda.html', 'gizlilik-politikasi.html', 'kvkk-aydinlatma-metni.html', 'cerez-politikasi.html', 'iletisim.html', 'partner-olun.html', 'guvenlik-veri.html', 'erp-entegrasyonlari.html', 'acik-bankacilik.html', 'login.html'];
+const EN_PAGES = ['index.html', 'hazine-nakit-yonetimi.html', 'fiyatlandirma.html', 'odemeler.html', 'risk-uyum.html', 'cek-senet.html', 'finansman.html', 'teminat-akreditif.html', 'cok-sirketli-gruplar.html', 'mutabakat.html', 'hakkimizda.html', 'gizlilik-politikasi.html', 'kvkk-aydinlatma-metni.html', 'cerez-politikasi.html', 'iletisim.html', 'partner-olun.html', 'guvenlik-veri.html', 'erp-entegrasyonlari.html', 'acik-bankacilik.html', 'login.html', 'blog.html'];
 
 /* Connection hedefini dile göre çözümler. */
 function L(href) {
@@ -81,17 +81,20 @@ function L(href) {
 
 /* File adı derleme sırasında ve tarayıcıda aynı olsun diye global'den okunur. */
 function LANG_URL(hedef) {
-  const dosya = typeof window !== 'undefined' && window.__PAGE_FILE || 'index.html';
+  let dosya = typeof window !== 'undefined' && window.__PAGE_FILE || 'index.html';
+  /* Blog yazıları dile özel; karşı dilde yazı olmayabilir, o dilin blog listesine gidilir. */
+  if (hedef !== SITE_LANG && /^blog-/.test(dosya)) dosya = 'blog.html';
   return hedef === SITE_LANG ? dosya : SITE_LANG === 'TR' ? 'en/' + dosya : '../' + dosya;
 }
 function SiteHeader({
   lang,
-  setLang
+  setLang,
+  alwaysSolid
 }) {
   const [open, setOpen] = useState(null);
-  const [solid, setSolid] = useState(false);
+  const [solid, setSolid] = useState(!!alwaysSolid);
   React.useEffect(() => {
-    const onScroll = () => setSolid(window.scrollY > 48);
+    const onScroll = () => setSolid(!!alwaysSolid || window.scrollY > 48);
     onScroll();
     window.addEventListener('scroll', onScroll, {
       passive: true

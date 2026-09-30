@@ -3,9 +3,11 @@
    Dışa bağımlılık yok. */
 (function (root) {
   const SITE = 'https://tideon.com.tr';
+  const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   const AYLAR = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
   /* tema → blog kapak çizimi (components.js BlogArt varyantları) */
-  const TEMA = { tahmin: 'forecast', nakit: 'forecast', cek: 'cheque', 'cek-senet': 'cheque', risk: 'covenant', covenant: 'covenant' };
+  const TEMA = { tahmin: 'forecast', nakit: 'forecast', hazine: 'forecast', forecasting: 'forecast', cash: 'forecast', treasury: 'forecast', cek: 'cheque', 'cek-senet': 'cheque', cheques: 'cheque', cheque: 'cheque', risk: 'covenant', covenant: 'covenant' };
+  const GENEL = { tr: 'Genel', en: 'General' };
 
   let INLINE_NETLIFY = false;
   const esc = (s) => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -86,22 +88,24 @@
     return out.join('\n');
   }
 
-  function fmtDate(iso) {
+  function fmtDate(iso, lang) {
     const m = String(iso).match(/^(\d{4})-(\d{2})-(\d{2})$/);
     if (!m) throw new Error('tarih YYYY-AA-GG biçiminde olmalı (ör. 2026-10-05), gelen: "' + iso + '"');
-    return +m[3] + ' ' + AYLAR[+m[2] - 1] + ' ' + m[1];
+    return +m[3] + ' ' + (lang === 'en' ? MONTHS : AYLAR)[+m[2] - 1] + ' ' + m[1];
   }
 
-  function parsePost(src, filename) {
+  function parsePost(src, filename, lang) {
     const { meta, body } = parseFrontmatter(src);
-    for (const k of ['baslik', 'tarih', 'kategori', 'ozet']) if (!meta[k]) throw new Error('"' + k + ':" satırı eksik.');
+    lang = lang || (meta.dil === 'en' ? 'en' : 'tr');
+    if (!meta.kategori || !String(meta.kategori).trim()) meta.kategori = GENEL[lang];
+    for (const k of ['baslik', 'tarih', 'ozet']) if (!meta[k]) throw new Error('"' + k + ':" satırı eksik.');
     const slug = slugify(meta.adres || filename.replace(/\.md$/, ''));
     const words = body.replace(/[#>*`|\-\[\]()!]/g, ' ').split(/\s+/).filter(Boolean).length;
     return {
-      slug, file: 'blog-' + slug + '.html',
-      baslik: meta.baslik, tarih: meta.tarih, tarihYazi: fmtDate(meta.tarih), kategori: meta.kategori,
+      slug, lang, file: 'blog-' + slug + '.html', path: (lang === 'en' ? 'en/' : '') + 'blog-' + slug + '.html',
+      baslik: meta.baslik, tarih: meta.tarih, tarihYazi: fmtDate(meta.tarih, lang), kategori: meta.kategori,
       ozet: meta.ozet, aciklama: meta.aciklama || meta.ozet,
-      sure: (meta.sure ? String(meta.sure).replace(/\s*dk$/, '') : Math.max(1, Math.round(words / 200))) + ' dk',
+      sure: (meta.sure ? String(meta.sure).replace(/\s*(dk|min)$/, '') : Math.max(1, Math.round(words / 200))) + (lang === 'en' ? ' min' : ' dk'),
       kapak: meta.kapak || '', kapakAlt: meta.kapak_aciklama || meta.baslik,
       tema: TEMA[slugify(meta.tema || meta.kategori).split('-')[0]] || TEMA[slugify(meta.tema || '')] || 'forecast',
       oneCikan: meta.one_cikan === true, taslak: meta.taslak === true,
@@ -113,36 +117,45 @@
   const sortPosts = (posts) => posts.sort((a, b) => (a.tarih < b.tarih ? 1 : a.tarih > b.tarih ? -1 : 0));
 
   /* Netlify görsel servisi: ekrana uygun boyut + modern biçim. Yerelde önizlemede ham dosya kullanılır. */
-  const img = (src, w, netlify) => (!src ? '' : netlify && src.charAt(0) === '/' ? '/.netlify/images?url=' + encodeURIComponent(src) + '&w=' + w : src.replace(/^\//, ''));
+  const img = (src, w, netlify, lang) => (!src ? '' : netlify && src.charAt(0) === '/' ? '/.netlify/images?url=' + encodeURIComponent(src) + '&w=' + w : src.charAt(0) === '/' ? (lang === 'en' ? '../' : '') + src.slice(1) : src);
 
+  const card = (p, netlify) => ({ file: p.file, baslik: p.baslik, kategori: p.kategori, tarihYazi: p.tarihYazi, sure: p.sure, ozet: p.ozet, tema: p.tema, kapak: img(p.kapak, 720, netlify, p.lang), kapakAlt: p.kapakAlt });
+
+  /* Liste sayfası: tüm yazılar kategori kategori (en çok yazısı olan kategori önce), en altta son 3 yazı. */
   function listData(posts, netlify) {
-    const lead = posts.find((p) => p.oneCikan) || posts[0] || null;
-    const card = (p) => ({ file: p.file, baslik: p.baslik, kategori: p.kategori, tarihYazi: p.tarihYazi, sure: p.sure, ozet: p.ozet, tema: p.tema, kapak: img(p.kapak, 720, netlify), kapakAlt: p.kapakAlt });
-    return { lead: lead ? card(lead) : null, posts: posts.filter((p) => p !== lead).map(card) };
+    const map = {};
+    for (const p of posts) (map[p.kategori] = map[p.kategori] || []).push(p);
+    const groups = Object.keys(map).map((name) => {
+      const list = map[name].slice().sort((a, b) => (b.oneCikan - a.oneCikan) || (a.tarih < b.tarih ? 1 : a.tarih > b.tarih ? -1 : 0));
+      return { name, id: 'k-' + slugify(name), posts: list.map((p) => card(p, netlify)), last: list[0].tarih };
+    }).sort((a, b) => (b.posts.length - a.posts.length) || (a.last < b.last ? 1 : -1));
+    groups.forEach((g) => delete g.last);
+    return { groups, latest: posts.slice(0, 3).map((p) => card(p, netlify)) };
   }
 
   function postData(p, posts, netlify) {
-    const others = posts.filter((x) => x !== p).slice(0, 3).map((x) => ({ file: x.file, baslik: x.baslik, kategori: x.kategori, tarihYazi: x.tarihYazi, sure: x.sure, ozet: x.ozet, tema: x.tema, kapak: img(x.kapak, 720, netlify), kapakAlt: x.kapakAlt }));
-    return { post: { file: p.file, baslik: p.baslik, kategori: p.kategori, tarihYazi: p.tarihYazi, sure: p.sure, ozet: p.ozet, tema: p.tema, kapak: img(p.kapak, 960, netlify), kapakAlt: p.kapakAlt, yazar: p.yazar, unvan: p.unvan, html: p.html }, others };
+    const others = posts.filter((x) => x !== p).slice(0, 3).map((x) => card(x, netlify));
+    return { post: { file: p.file, baslik: p.baslik, kategori: p.kategori, tarihYazi: p.tarihYazi, sure: p.sure, ozet: p.ozet, tema: p.tema, kapak: img(p.kapak, 960, netlify, p.lang), kapakAlt: p.kapakAlt, yazar: p.yazar, unvan: p.unvan, html: p.html }, others };
   }
 
   function postHead(p) {
-    const url = SITE + '/' + p.file;
+    const en = p.lang === 'en', up = en ? '../' : '';
+    const url = SITE + '/' + p.path;
     const title = p.baslik + ' | Tideon Blog';
     const image = p.kapak ? SITE + p.kapak : SITE + '/assets/og-image.png';
     const ld = [
-      { '@context': 'https://schema.org', '@type': 'BlogPosting', headline: p.baslik, description: p.aciklama, datePublished: p.tarih, dateModified: p.tarih, inLanguage: 'tr-TR', mainEntityOfPage: url, image, author: { '@type': 'Organization', name: p.yazar, url: SITE + '/' }, publisher: { '@type': 'Organization', name: 'Tideon', logo: { '@type': 'ImageObject', url: SITE + '/icon-512.png' } } },
-      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Ana sayfa', item: SITE + '/' }, { '@type': 'ListItem', position: 2, name: 'Blog', item: SITE + '/blog.html' }, { '@type': 'ListItem', position: 3, name: p.baslik, item: url }] },
+      { '@context': 'https://schema.org', '@type': 'BlogPosting', headline: p.baslik, description: p.aciklama, datePublished: p.tarih, dateModified: p.tarih, inLanguage: en ? 'en-US' : 'tr-TR', mainEntityOfPage: url, image, author: { '@type': 'Organization', name: p.yazar, url: SITE + (en ? '/en/' : '/') }, publisher: { '@type': 'Organization', name: 'Tideon', logo: { '@type': 'ImageObject', url: SITE + '/icon-512.png' } } },
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: en ? 'Home' : 'Ana sayfa', item: SITE + (en ? '/en/' : '/') }, { '@type': 'ListItem', position: 2, name: 'Blog', item: SITE + (en ? '/en/blog.html' : '/blog.html') }, { '@type': 'ListItem', position: 3, name: p.baslik, item: url }] },
     ];
     return '\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n' +
       '<title>' + esc(title) + '</title>\n<meta name="description" content="' + esc(p.aciklama) + '">\n' +
-      '<link rel="canonical" href="' + url + '">\n<link rel="alternate" hreflang="tr" href="' + url + '">\n<link rel="alternate" hreflang="x-default" href="' + url + '">\n' +
-      '<meta property="og:type" content="article">\n<meta property="og:locale" content="tr_TR">\n<meta property="og:site_name" content="Tideon">\n' +
+      '<link rel="canonical" href="' + url + '">\n<link rel="alternate" hreflang="' + (en ? 'en' : 'tr') + '" href="' + url + '">\n<link rel="alternate" hreflang="x-default" href="' + url + '">\n' +
+      '<meta property="og:type" content="article">\n<meta property="og:locale" content="' + (en ? 'en_US' : 'tr_TR') + '">\n<meta property="og:site_name" content="Tideon">\n' +
       '<meta property="og:title" content="' + esc(title) + '">\n<meta property="og:description" content="' + esc(p.aciklama) + '">\n<meta property="og:url" content="' + url + '">\n<meta property="og:image" content="' + image + '">\n' +
       '<meta property="article:published_time" content="' + p.tarih + '">\n<meta property="article:section" content="' + esc(p.kategori) + '">\n' +
       '<meta name="twitter:card" content="summary_large_image">\n<meta name="twitter:title" content="' + esc(title) + '">\n<meta name="twitter:description" content="' + esc(p.aciklama) + '">\n<meta name="twitter:image" content="' + image + '">\n' +
       ld.map((o) => '<script type="application/ld+json">' + JSON.stringify(o).replace(/</g, '\\u003c') + '</script>').join('\n') + '\n' +
-      '<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">\n<link rel="apple-touch-icon" href="apple-touch-icon.png">\n<link rel="stylesheet" href="styles.css">\n<link rel="stylesheet" href="site.css">\n';
+      '<link rel="icon" type="image/png" sizes="32x32" href="' + up + 'favicon-32.png">\n<link rel="apple-touch-icon" href="' + up + 'apple-touch-icon.png">\n<link rel="stylesheet" href="' + up + 'styles.css">\n<link rel="stylesheet" href="' + up + 'site.css">\n';
   }
 
   const dataTag = (d) => '<script type="application/json" id="blog-data">' + JSON.stringify(d).replace(/</g, '\\u003c') + '</script>\n';
@@ -150,17 +163,20 @@
   function shell(tpl) {
     tpl = tpl.replace(/<script type="application\/json" id="blog-data">[\s\S]*?<\/script>\n?/, '');
     const a = tpl.indexOf('<div id="root">');
-    const z = tpl.indexOf('<script src="js/react.js">');
+    let z = tpl.indexOf('<script src="js/react.js">');
+    if (z < 0) z = tpl.indexOf('<script src="../js/react.js">');
     const rootEnd = tpl.lastIndexOf('</div>', z);
     if (a < 0 || z < 0 || rootEnd < a) throw new Error('blog.html şablonu beklenen yapıda değil.');
     return { pre: tpl.slice(0, a), post: tpl.slice(rootEnd + 6) };
   }
 
-  function sitemap(xml, posts, today) {
-    xml = xml.replace(/\n?\s*<url><loc>https:\/\/tideon\.com\.tr\/blog-[^<]+<\/loc>[\s\S]*?<\/url>/g, '');
-    const last = posts.length ? posts.reduce((m, p) => (p.tarih > m ? p.tarih : m), '0000') : today;
-    xml = xml.replace(/(<loc>https:\/\/tideon\.com\.tr\/blog\.html<\/loc><lastmod>)[^<]+/, '$1' + last);
-    const entries = posts.map((p) => '  <url><loc>' + SITE + '/' + p.file + '</loc><lastmod>' + p.tarih + '</lastmod><priority>0.5</priority></url>').join('\n');
+  /* tr ve en yazılarını birlikte işler; blog liste sayfalarının lastmod'u son yazıya göre güncellenir. */
+  function sitemap(xml, trPosts, enPosts, today) {
+    xml = xml.replace(/\n?\s*<url><loc>https:\/\/tideon\.com\.tr\/(en\/)?blog-[^<]+<\/loc>[\s\S]*?<\/url>/g, '');
+    const last = (ps) => (ps.length ? ps.reduce((m, p) => (p.tarih > m ? p.tarih : m), '0000') : today);
+    xml = xml.replace(/(<loc>https:\/\/tideon\.com\.tr\/blog\.html<\/loc><lastmod>)[^<]+/, '$1' + last(trPosts));
+    xml = xml.replace(/(<loc>https:\/\/tideon\.com\.tr\/en\/blog\.html<\/loc><lastmod>)[^<]+/, '$1' + last(enPosts));
+    const entries = trPosts.concat(enPosts).map((p) => '  <url><loc>' + SITE + '/' + p.path + '</loc><lastmod>' + p.tarih + '</lastmod><priority>0.5</priority></url>').join('\n');
     return entries ? xml.replace('</urlset>', entries + '\n</urlset>') : xml;
   }
 
@@ -169,17 +185,17 @@
     INLINE_NETLIFY = !!o.netlify;
     const { pre, post } = shell(o.template);
     const listing = listData(o.posts, o.netlify);
-    o.write('blog.html', pre + '<div id="root">' + o.render('blog.html', 'js/page-blog.js', listing) + '</div>\n' + dataTag(listing) + post.replace(/^\n/, ''));
+    const pre0 = o.lang === 'en' ? 'en/' : '';
+    o.write(pre0 + 'blog.html', pre + '<div id="root">' + o.render('blog.html', 'js/page-blog.js', listing) + '</div>\n' + dataTag(listing) + post.replace(/^\n/, ''));
     for (const p of o.posts) {
       const d = postData(p, o.posts, o.netlify);
       const head = pre.replace(/<head>[\s\S]*<\/head>/, '<head>' + postHead(p) + '</head>');
       const tail = post.replace(/^\n/, '').replace('window.__PAGE_FILE="blog.html"', 'window.__PAGE_FILE="' + p.file + '"').replace('js/page-blog.js', 'js/page-blog-post.js');
-      o.write(p.file, head + '<div id="root">' + o.render(p.file, 'js/page-blog-post.js', d) + '</div>\n' + dataTag(d) + tail);
+      o.write(p.path, head + '<div id="root">' + o.render(p.file, 'js/page-blog-post.js', d) + '</div>\n' + dataTag(d) + tail);
     }
-    o.write('sitemap.xml', sitemap(o.sitemapXml, o.posts, o.today));
-    return o.posts.map((p) => p.file);
+    return o.posts.map((p) => p.path);
   }
 
-  const api = { slugify, parseFrontmatter, markdown, parsePost, sortPosts, build, fmtDate };
+  const api = { sitemap, slugify, parseFrontmatter, markdown, parsePost, sortPosts, build, fmtDate };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.TideonBlog = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this);
